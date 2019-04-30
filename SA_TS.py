@@ -25,13 +25,15 @@ class TipoAvion:
 
 class Vuelo:
     def __init__ (self,llegada,avion,horaEstimada,fechaEstimada, \
-        horaProgramada,fechaProgramada, icao, iata, \
+        horaProgramada,fechaProgramada, horaLlegada, fechaLlegada,  icao, iata, \
         numeroVuelo,estaEnTierra,latitud,longitud, \
         altura, direccion, velocidadHorizontal, velocidadVertical):
         self.horaEstimada = horaEstimada
         self.fechaEstimada = fechaEstimada
         self.horaProgramada = horaProgramada
         self.fechaProgramada = fechaProgramada
+        self.horaLlegada = horaLlegada
+        self.fechaLlegada = fechaLlegada
         self.icao = icao
         self.iata = iata
         self.numeroVuelo = numeroVuelo
@@ -57,7 +59,7 @@ class BloqueVuelo:
         self.vuelo = vuelo
         self.ocupado = True
 
-class listaVuelos:
+class ListaVuelos:
     def __init__ (self):
         self.inicio = None
         self.fin = None
@@ -73,30 +75,33 @@ class listaVuelos:
             
         self.cantidad += 1
 
-class Area :
+class Area:
     def __init__ (self, idArea,  largo,ancho, coordenadaXCentro, coordenadaYCentro):
         self.idPuerta = idArea
         self.largo = largo
         self.ancho = ancho
-        self.tiempoDisponible = datetime.now()
-        self.Vuelos = None #listaVuelos
+        self.tiempoDisponible = 24*60*60
+        self.vuelos = ListaVuelos()
+        
+class Zona(Area):
+    def __init__ (self, idArea, largo,ancho,coordenadaXCentro, coordenadaYCentro):
+        Area.__init__(self, idArea, largo,ancho,coordenadaXCentro, coordenadaYCentro)
 
-class Zona :
-    def __init__ (self, idZona, largo,ancho):
-        self.idZona = idZona
-        self.largo = largo
-        self.ancho=ancho
+class Puerta(Area):
+    def __init__ (self, idArea, largo,ancho,coordenadaXCentro, coordenadaYCentro, velocidadDesembarco):
+        Area.__init__(self, idArea, largo,ancho, coordenadaXCentro, coordenadaYCentro)
+        self.velocidadDesembarco = velocidadDesembarco
 
 class Manga: 
     def __init__(self, puerta, longitud):
-        self.Puerta = puerta
+        self.puerta = puerta
 
-def main():
-    listaPuertas = []
-    for i  in range(10):
-        listaPuertas.append(Puerta(i,int(round((random()+1)*400)),(random()+1)*10,(random()+1)*10))
-    print (listaPuertas[2].capacidad)
+#def main():
+#    listaPuertas = []
+#    for i  in range(10):
+#        listaPuertas.append(Puerta(i,int(round((random()+1)*400)),(random()+1)*10,(random()+1)*10))
+#    print (listaPuertas[2].capacidad)
     #print(str(p.ancho)+" / "+str(p.capacidad) +" / " + str(p.tiempoDisponible))
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
