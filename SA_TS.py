@@ -8,6 +8,12 @@ class Avion :
         self.icao = icao
         self.tipoAvion = tipoAvion
         self.tAerolinea = tAerolinea
+        
+class Aeropuerto:
+    def __init__ (self, idAeropuerto, iata, icao):
+        self.idAeropuerto = idAeropuerto 
+        self.iata = iata
+        self.icao = icao
 
 class TAerolinea:
     def __init__ (self, idAerolinea, iata,icao):
@@ -24,16 +30,20 @@ class TipoAvion:
         self.ancho=ancho
 
 class Vuelo:
+    def __init__ (self, status, aeropuertoPartida, aeropuertoDestino, aerolinea, vuelo):
+        self.aeropuertoOrigen = Aeropuerto (aeropuertoPartida.idAeropuerto, aeropuertoPartida.iataCode, aeropuertoPartida.icaoCode)
+        if (status == "scheduled"):
+            anho = aeropuertoDestino.scheduledTime[0:4]
+            print(anho)  
+            
     def __init__ (self,llegada,avion,horaEstimada,fechaEstimada, \
         horaProgramada,fechaProgramada, horaLlegada, fechaLlegada,  icao, iata, \
         numeroVuelo,estaEnTierra,latitud,longitud, \
-        altura, direccion, velocidadHorizontal, velocidadVertical):
-        self.horaEstimada = horaEstimada
-        self.fechaEstimada = fechaEstimada
-        self.horaProgramada = horaProgramada
-        self.fechaProgramada = fechaProgramada
-        self.horaLlegada = horaLlegada
-        self.fechaLlegada = fechaLlegada
+        altura, direccion, velocidadHorizontal, velocidadVertical, aeropuertoOrigen):
+        
+        self.tiempoEstimado = horaEstimada
+        self.tiempoProgramado = horaProgramada
+        self.tiempoLlegada = horaLlegada
         self.icao = icao
         self.iata = iata
         self.numeroVuelo = numeroVuelo
@@ -43,11 +53,17 @@ class Vuelo:
         self.altura = altura
         self.direccion = direccion
         self.velocidadHorizontal = velocidadHorizontal
-        self.velocidadVertical = velocidadVertical
+        self.velocidadVertical = velocidadVertical 
+        self.aeropuertoOrigen = aeropuertoOrigen #class
         self.asignado = False
         self.area= None
-        self.avion = avion
-
+        self.avion = avion #class
+             
+        
+    def asignarPuerta (self, flagArea, area): 
+        self.flagArea = flagArea # 1: zona, 0: puerta
+        self.Area = area # puntero a puerta o zona
+        
 class BloqueVuelo:
     def __init__(self):
         self.vuelo = None
@@ -105,3 +121,32 @@ class Manga:
 
 #if __name__ == "__main__":
 #    main()
+'''
+class Salida:
+    def _init_ (self, iataCod, icaoCod, terminal, puerta, horaProgramada, horaEstimada, horaReal, pistaEstimada, pistaReal):
+        self.iataCod = iataCod
+        self.icaoCod = icaoCod
+        self.terminal = terminal
+        self.puerta = puerta
+        self.horaProgramada = horaProgramada
+        self.horaEstimada = horaEstimada
+        self.horaReal = horaReal
+        self.pistaEstimada = pistaEstimada
+        self.pistaReal = pistaReal
+
+class Llegada:
+    def _init_ (self, iataCod, icaoCod, horaProgramada, horaEstimada, horaReal, pistaEstimada, pistaReal):
+        self.iataCod = iataCod
+        self.icaoCod = icaoCod
+        self.horaProgramada = horaProgramada
+        self.horaEstimada = horaEstimada
+        self.horaReal = horaReal
+        self.pistaEstimada = pistaEstimada
+        self.pistaReal = pistaReal
+
+class Aerolinea:
+    def _init_ (self, nombre, iataCod, icaoCod)
+        self.nombre = nombre
+        self.iataCod = iataCod
+        self.icaoCod = icaoCod
+'''
