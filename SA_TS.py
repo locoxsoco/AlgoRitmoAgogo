@@ -2,16 +2,14 @@ from datetime import datetime
 from random import random
 
 class Avion :
-    def __init__ (self,idAvion,reg_number,icao,tipoAvion,tAerolinea):
-        self.idAvion= idAvion
+    def __init__ (self,reg_number,icao,tipoAvion,tAerolinea):
         self.regNumber = reg_number
         self.icao = icao
         self.tipoAvion = tipoAvion
         self.tAerolinea = tAerolinea
         
 class Aeropuerto:
-    def __init__ (self, idAeropuerto, iata, icao):
-        self.idAeropuerto = idAeropuerto 
+    def __init__ (self, iata, icao):
         self.iata = iata
         self.icao = icao
 
@@ -22,21 +20,24 @@ class TAerolinea:
         self.icao = icao
 
 class TipoAvion:
-    def __init__(self, idTipoAvion,regNumber,capacidad,largo,ancho): 
-        self.idTipoAvion = idTipoAvion
+    def __init__(self,regNumber,capacidad,largo,ancho): 
         self.regNumber = regNumber
         self.capacidad=capacidad
         self.largo=largo
         self.ancho=ancho
 
 class Vuelo:
-    def __init__ (self, status, aeropuertoPartida, aeropuertoDestino, aerolinea, vuelo):
-        self.aeropuertoOrigen = Aeropuerto (aeropuertoPartida.idAeropuerto, aeropuertoPartida.iataCode, aeropuertoPartida.icaoCode)
+    @classmethod
+    def aJson (cls, status, aeropuertoPartida, aeropuertoDestino, aerolinea, vuelo):
+        aeropuertoOrigen = Aeropuerto (aeropuertoPartida['iataCode'], aeropuertoPartida['icaoCode'])
+        tipoAvion = TipoAvion()
+        avion = Avion ()
         if (status == "scheduled"):
-            anho = aeropuertoDestino.scheduledTime[0:4]
-            print(anho)  
-            
-    def __init__ (self,llegada,avion,horaEstimada,fechaEstimada, \
+            anho = aeropuertoDestino['scheduledTime'][0:4]
+            print(anho)
+        return cls(avion = vuelo)
+        
+    def __init__ (self,avion,horaEstimada,fechaEstimada, \
         horaProgramada,fechaProgramada, horaLlegada, fechaLlegada,  icao, iata, \
         numeroVuelo,estaEnTierra,latitud,longitud, \
         altura, direccion, velocidadHorizontal, velocidadVertical, aeropuertoOrigen):
@@ -111,42 +112,3 @@ class Puerta(Area):
 class Manga: 
     def __init__(self, puerta, longitud):
         self.puerta = puerta
-
-#def main():
-#    listaPuertas = []
-#    for i  in range(10):
-#        listaPuertas.append(Puerta(i,int(round((random()+1)*400)),(random()+1)*10,(random()+1)*10))
-#    print (listaPuertas[2].capacidad)
-    #print(str(p.ancho)+" / "+str(p.capacidad) +" / " + str(p.tiempoDisponible))
-
-#if __name__ == "__main__":
-#    main()
-'''
-class Salida:
-    def _init_ (self, iataCod, icaoCod, terminal, puerta, horaProgramada, horaEstimada, horaReal, pistaEstimada, pistaReal):
-        self.iataCod = iataCod
-        self.icaoCod = icaoCod
-        self.terminal = terminal
-        self.puerta = puerta
-        self.horaProgramada = horaProgramada
-        self.horaEstimada = horaEstimada
-        self.horaReal = horaReal
-        self.pistaEstimada = pistaEstimada
-        self.pistaReal = pistaReal
-
-class Llegada:
-    def _init_ (self, iataCod, icaoCod, horaProgramada, horaEstimada, horaReal, pistaEstimada, pistaReal):
-        self.iataCod = iataCod
-        self.icaoCod = icaoCod
-        self.horaProgramada = horaProgramada
-        self.horaEstimada = horaEstimada
-        self.horaReal = horaReal
-        self.pistaEstimada = pistaEstimada
-        self.pistaReal = pistaReal
-
-class Aerolinea:
-    def _init_ (self, nombre, iataCod, icaoCod)
-        self.nombre = nombre
-        self.iataCod = iataCod
-        self.icaoCod = icaoCod
-'''
