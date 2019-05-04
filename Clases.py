@@ -14,7 +14,7 @@ class Avion :
     def addTipoAvion(self, tipoAvion):
         self.tipoAvion = tipoAvion
 
-    def addTAerolinea(self, TAerolinea):
+    def addTAerolinea(self, tAerolinea):
         self.tAerolinea = tAerolinea
 
 class Aeropuerto:
@@ -60,7 +60,7 @@ class TipoAvion:
         self.ancho=ancho
 
 class Vuelo:        
-    def __init__ (self, avion =None,tiempoEstimado =None,tiempoProgramado=None, \
+    def __init__ (self, estado = None, avion =None,tiempoEstimado =None,tiempoProgramado=None, \
         tiempoLlegada=None,  icao=None, iata=None, \
         numeroVuelo=None,estaEnTierra=None,latitud=None,longitud=None, \
         altura=None, direccion=None, velocidadHorizontal=None, velocidadVertical=None):
