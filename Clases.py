@@ -93,9 +93,11 @@ class Vuelo:
 
     def addTiempoEstimado (self,tiempoEstimado):
         self.tiempoEstimado = tiempoEstimado
+        self.tiempoSinModificar = tiempoEstimado
 
     def addTiempoProgramado (self,tiempoProgramado):
         self.tiempoProgramado=tiempoProgramado
+        self.tiempoSinModificar = tiempoProgramado
 
     def addTiempoLlegada (self, tiempoLlegada):
         self.tiempoLlegada = tiempoLlegada
@@ -142,11 +144,13 @@ class Vuelo:
         self.asignado=True
 
     def printData(self):
+        pass
+        '''
         print("Numero de vuelo: " + str(self.numeroVuelo))
         if (self.area is not None):
             print("Puerta: " + str(self.area.idArea))
         print ("------------------------")
-
+        '''
 class BloqueVuelo:
     def __init__(self):
         self.vuelo = None
@@ -251,6 +255,38 @@ class Area:
             p=p.sig
         print("----------------------")
         
+    def removeVuelo(self,bloque):
+        p = self.vuelos.inicio
+        ant = None
+        while (p is not None):
+            if(p == bloque):
+                if(ant is not None and p.sig is not None):
+                    if (not ant.ocupado and not p.sig.ocupado):
+                        ant.definirEspacioVacio(ant.tiempoInicio, p.sig.tiempoFin)
+                        ant.sig = p.sig.sig
+                        self.vuelos.cantBloques -= 1
+                    elif (not ant.ocupado):
+                        ant.definirEspacioVacio(ant.tiempoInicio,p.tiempoFin)
+                        ant.sig = p.sig
+                    elif (not p.sig.ocupado):
+                        p.sig.definirEspacioVacio(p.tiempoInicio,p.sig.tiempoFin)
+                        ant.sig = p.sig
+                    else:
+                        ant.sig = p.sig
+
+                elif (ant is None):
+                    self.vuelos.inicio = p.sig
+                elif(p.sig is None):
+                    ant.sig = None
+
+                self.tiempoLibre += p.tiempoFin-p.tiempoInicio
+                self.vuelos.tiempoLibre += p.tiempoFin-p.tiempoInicio
+                self.vuelos.cantBloques -=1
+                self.vuelos.cantidad -=1
+                break
+            ant = p
+            p=p.sig
+
 class Zona(Area):
     def __init__ (self, idArea=0, largo=0.0, ancho=0.0, coordenadaXCentro=0.0, \
         coordenadaYCentro=0):
