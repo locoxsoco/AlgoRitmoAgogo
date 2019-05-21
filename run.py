@@ -15,9 +15,35 @@ import Clases
 import Metaheuristico
 from datetime import datetime, date, time, timedelta
 
-def main():
-    print(sys.argv[1]+ " cargado")
-    with open(sys.argv[1]) as json_file:  
+def main ():
+    if((sys.argv[1]) == "x"): 
+        archivo = "ArrivalLima190504.txt"
+        a=corrida (archivo)
+        archivo = "ArrivalLima190505.txt"
+        b=corrida (archivo)
+        archivo = "ArrivalLima190506.txt"
+        c=corrida (archivo)
+        archivo = "ArrivalLima190507.txt"
+        d=corrida (archivo)
+        archivo = "ArrivalLima190508.txt"
+        e=corrida (archivo)
+        archivo = "ArrivalLima190509.txt"
+        f=corrida (archivo)
+        print("-------------------------")
+        print("Experimentación Final: ")
+        print("4 de mayo: "+ str(round(a,2)))
+        print("5 de mayo: "+ str(round(b,2)))
+        print("6 de mayo: "+ str(round(c,2)))
+        print("7 de mayo: "+ str(round(d,2)))
+        print("8 de mayo: "+ str(round(e,2)))
+        print("9 de mayo: "+ str(round(f,2)))
+        print ("Promedio: "+str(round((a+b+c+d+e+f)/6,2)))
+        print("-------------------------")
+    else: 
+        corrida (sys.argv[1])
+
+def corrida(archivo):
+    with open(archivo) as json_file:  
         data = json.loads(json_file.read().replace("\'", "\""))
         #print (data)
         #print(len(data))
@@ -110,6 +136,7 @@ def main():
     for i in x[1]:
         i.imprimirLista()
     print("Resultado: " + str(y))
+    return y
 
 if __name__ == '__main__':
     main()
