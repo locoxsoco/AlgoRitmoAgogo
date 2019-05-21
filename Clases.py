@@ -146,10 +146,11 @@ class Vuelo:
         self.idVuelo = Vuelo.nVuelo
 
     def printData(self):
-        print("Numero de vuelo: " + str(self.numeroVuelo)+ " | ", end='')
-        if (self.area is not None):
-            print("Puerta: " + str(self.area.idArea)+ " | ", end='')
-        print("tiempoEstimado: " + str(self.tiempoEstimado) +" | tiempoLlegada: " + str(self.tiempoLlegada) )
+        #print("Numero de vuelo: " + str(self.numeroVuelo)+ " | ", end='')
+        #if (self.area is not None):
+        #    print("Puerta: " + str(self.area.idArea)+ " | ", end='')
+        #print("tiempoEstimado: " + str(self.tiempoEstimado) +" | tiempoLlegada: " + str(self.tiempoLlegada) )
+        pass
 
 class BloqueVuelo:
     def __init__(self):
@@ -244,7 +245,7 @@ class Area:
         while(p is not None):
             print("Libre: "+ str(not (p.ocupado))+" | tiempoInicio: "+str(p.tiempoInicio)+ " | tiempoFin: "+str(p.tiempoFin),end='')
             if (p.ocupado):
-                print(" | ID Vuelo: "+ str(p.vuelo.idVuelo))
+                print(" | ID Vuelo: "+ str(p.vuelo.idVuelo) + " | TiempoLlegada: "+ str(p.vuelo.tiempoEstimado))
             else:
                 print()
             p=p.sig            

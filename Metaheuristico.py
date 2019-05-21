@@ -26,6 +26,7 @@ class Annealer(object):
         """
         Método FIFO para alcanzar una solución mas o menos óptima
         """
+        print ("Original: ")
         self.listaVuelos = deepcopy(x)
         self.listaPuertas = deepcopy(y)
         self.listaZonas = deepcopy(z)
@@ -68,13 +69,13 @@ class Annealer(object):
         
         x= best_state
         y=best_energy
-        print("Puertas")
-        for i in x[0]:
-            i.imprimirLista()
-        print("Zonas:")
-        for i in x[1]:
-            i.imprimirLista()
-        print("Resultado: " + str(y))
+        #print("Puertas")
+        #for i in x[0]:
+        #    i.imprimirLista()
+        #print("Zonas:")
+        #for i in x[1]:
+        #    i.imprimirLista()
+        #print("Resultado: " + str(y))
 
     def move(self):
         selector =round(random.random()*2)
@@ -153,8 +154,8 @@ class Annealer(object):
         for i in self.state[2]:
             costoVuelos += (i.tiempoLlegada - i.tiempoEstimado).total_seconds() ** 2
             xd += (i.tiempoLlegada - i.tiempoEstimado).total_seconds()
-        if (fin): 
-            print (self.maxTiempo, self.minTiempo)
+        if (fin):
+            #print (self.maxTiempo, self.minTiempo)
             print ("Hora asignada y hora estimada (L) : "+ str(xd/3600))
         xd=0        
         costoAreas = 0
@@ -205,7 +206,7 @@ class Annealer(object):
         Tfactor = -math.log(self.Tmax / self.Tmin)
 
         T = self.Tmax
-        E = self.energy()
+        E = self.energy(False)
         prevState = deepcopy(self.state)
         prevEnergy = E
         best_state = deepcopy(self.state)
@@ -237,5 +238,7 @@ class Annealer(object):
 
         # Return best state and energy
         self.state = deepcopy(best_state)
+
+        print("Final: ") 
         self.energy()
         return best_state, best_energy
