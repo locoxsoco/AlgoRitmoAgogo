@@ -60,8 +60,9 @@ class TipoAvion:
     def addAncho(self,ancho):
         self.ancho=ancho
 
-class Vuelo:        
-    def __init__ (self, estado = None, avion =None,tiempoEstimado =None,tiempoProgramado=None, \
+class Vuelo:    
+    nVuelo = 0    
+    def __init__ (self,  estado = None, avion =None,tiempoEstimado =None,tiempoProgramado=None, \
         tiempoLlegada=None,  icao=None, iata=None, \
         numeroVuelo=None,estaEnTierra=None,latitud=None,longitud=None, \
         altura=None, direccion=None, velocidadHorizontal=None, velocidadVertical=None,
@@ -84,22 +85,22 @@ class Vuelo:
         self.velocidadHorizontal = velocidadHorizontal
         self.velocidadVertical = velocidadVertical
         self.aeropuertoOrigen = aeropuertoOrigen
+        self.idVuelo = 0
 
-    def addEstado(self,estado):
+    def setEstado(self,estado):
         self.estado = estado
 
-    def addAvion (self,avion):
+    def setAvion (self,avion):
         self.avion=avion
 
-    def addTiempoEstimado (self,tiempoEstimado):
+    def setTiempoEstimado (self,tiempoEstimado):
         self.tiempoEstimado = tiempoEstimado
-        self.tiempoSinModificar = tiempoEstimado
 
     def addTiempoProgramado (self,tiempoProgramado):
+        # no se usa, ahora todo será addTiempoEstimado
         self.tiempoProgramado=tiempoProgramado
-        self.tiempoSinModificar = tiempoProgramado
 
-    def addTiempoLlegada (self, tiempoLlegada):
+    def setTiempoLlegada (self, tiempoLlegada):
         self.tiempoLlegada = tiempoLlegada
 
     def addIata(self, iata):
@@ -135,22 +136,21 @@ class Vuelo:
     def addAeropuertoOrigen(self,aeropuertoOrigen):
         self.aeropuertoOrigen = aeropuertoOrigen 
 
-    def addAvion(self,avion):
-        self.avion = avion #class
-
     def asignarPuerta (self, flagArea, area): 
         self.flagArea = flagArea # 1: zona, 0: puerta
         self.area = area # puntero a puerta o zona
         self.asignado=True
 
+    def asignarIDVuelo(self):
+        Vuelo.nVuelo +=1
+        self.idVuelo = Vuelo.nVuelo
+
     def printData(self):
-        pass
-        '''
-        print("Numero de vuelo: " + str(self.numeroVuelo))
+        print("Numero de vuelo: " + str(self.numeroVuelo)+ " | ", end='')
         if (self.area is not None):
-            print("Puerta: " + str(self.area.idArea))
-        print ("------------------------")
-        '''
+            print("Puerta: " + str(self.area.idArea)+ " | ", end='')
+        print("tiempoEstimado: " + str(self.tiempoEstimado) +" | tiempoLlegada: " + str(self.tiempoLlegada) )
+
 class BloqueVuelo:
     def __init__(self):
         self.vuelo = None
@@ -159,17 +159,13 @@ class BloqueVuelo:
         self.tiempoFin = None
         self.sig = None
 
-    def addVuelo(self,vuelo):
+    def addVuelo(self,vuelo,tiempo):
         self.vuelo = vuelo
         self.ocupado = True
-        if(vuelo.estado =="scheduled"):
-            t = vuelo.tiempoProgramado
-        else:
-            t=vuelo.tiempoEstimado
+        t=tiempo
 
         self.tiempoInicio = t-timedelta(hours =1)
         self.tiempoFin = t + timedelta(hours=2)
-
 
     def definirEspacioVacio(self, tiempoInicio, tiempoFin):
         self.tiempoInicio = tiempoInicio
@@ -181,17 +177,17 @@ class ListaVuelos:
         self.inicio = BloqueVuelo()
 
         dia = datetime.now()
-        self.tiempoInicio= datetime(year=dia.year,month =dia.month,day=dia.day,\
-            hour=dia.hour,minute=0,second=0)-timedelta(days=1)
-        self.tiempoFin= datetime(year=dia.year,month =dia.month,day=dia.day,\
-            hour=dia.hour,minute=59,second=59)+timedelta(days=2)
+        self.tiempoInicio= datetime(year=2019,month =1,day=1,\
+            hour=0,minute=0,second=0)
+        self.tiempoFin= datetime(year=2020,month =1,day=1,\
+            hour=0,minute=0,second=0)
 
         self.inicio.definirEspacioVacio(self.tiempoInicio,self.tiempoFin)
         self.fin = self.inicio
         self.cantidad=0
         self.cantBloques=1
-        self.tiempoLibre = self.tiempoFin - self.tiempoInicio
-    
+        #self.tiempoLibre = self.tiempoFin - self.tiempoInicio
+        
     def insertarBloque (self, bloque,pos=0):
         p = self.inicio
         ant = None
@@ -200,7 +196,7 @@ class ListaVuelos:
             if (not p.ocupado and p.tiempoInicio<= bloque.tiempoInicio and \
                 p.tiempoFin >= bloque.tiempoFin):
 
-                self.tiempoLibre = self.tiempoLibre - (bloque.tiempoFin - bloque.tiempoInicio)
+                #self.tiempoLibre = self.tiempoLibre - (bloque.tiempoFin - bloque.tiempoInicio)
                 bloqueAnt = ant    
                 bloqueSig = p.sig
                 if (p.tiempoInicio != bloque.tiempoInicio):
@@ -223,17 +219,12 @@ class ListaVuelos:
                     bloqueAnt.sig = bloque
                 bloque.sig = bloqueSig
                 self.cantidad +=1
-
-                #print("vuelo "+str(bloque.vuelo.numeroVuelo) )
-                #print (self.cantidad,self.cantBloques)
-                #print(bloqueSig.tiempoInicio, bloqueSig.tiempoFin)
-                #print(bloqueAnt.tiempoInicio, bloqueAnt.tiempoFin)
                 ubicado = True
                 break
             ant = p
             p = p.sig
         if (ubicado): 
-            return self.tiempoLibre
+            return 1 #self.tiempoLibre
         else: 
             return -1
 
@@ -244,15 +235,19 @@ class Area:
         self.largo = largo
         self.ancho = ancho
         self.vuelos = ListaVuelos()
-        self.tiempoLibre = self.vuelos.tiempoLibre
+        #self.tiempoLibre = self.vuelos.tiempoLibre
 
 
     def imprimirLista(self):
         p=self.vuelos.inicio
         print("ID: "+str(self.idArea))
         while(p is not None):
-            print("Libre: "+ str(p.ocupado)+" | tiempoInicio: "+str(p.tiempoInicio)+ " | tiempoFin: "+str(p.tiempoFin))
-            p=p.sig
+            print("Libre: "+ str(not (p.ocupado))+" | tiempoInicio: "+str(p.tiempoInicio)+ " | tiempoFin: "+str(p.tiempoFin),end='')
+            if (p.ocupado):
+                print(" | ID Vuelo: "+ str(p.vuelo.idVuelo))
+            else:
+                print()
+            p=p.sig            
         print("----------------------")
         
     def removeVuelo(self,bloque):
@@ -279,8 +274,6 @@ class Area:
                 elif(p.sig is None):
                     ant.sig = None
 
-                self.tiempoLibre += p.tiempoFin-p.tiempoInicio
-                self.vuelos.tiempoLibre += p.tiempoFin-p.tiempoInicio
                 self.vuelos.cantBloques -=1
                 self.vuelos.cantidad -=1
                 break
@@ -292,16 +285,14 @@ class Zona(Area):
         coordenadaYCentro=0):
         Area.__init__(self, idArea, largo,ancho,coordenadaXCentro, coordenadaYCentro)
 
-    def insertarVuelo(self, vuelo):
+    def insertarVuelo(self, vuelo,tiempo):
         bloque = BloqueVuelo()
-        bloque.addVuelo(vuelo)
+        bloque.addVuelo(vuelo,tiempo)
         insercion = self.vuelos.insertarBloque(bloque)
         if (insercion != -1 ):
             bloque.vuelo.asignarPuerta (1, self)
-            self.tiempoLibre = insercion
             return 1
         else:
-            #print ("Area: " + str(self.idArea) + "t: " + str(insercion))
             return -1
 
 class Puerta(Area):
@@ -310,16 +301,15 @@ class Puerta(Area):
         Area.__init__(self, idArea, largo,ancho, coordenadaXCentro, coordenadaYCentro)
         self.velocidadDesembarco = velocidadDesembarco
 
-    def insertarVuelo(self, vuelo):
-        bloque = BloqueVuelo()
-        bloque.addVuelo(vuelo)
+    def insertarVuelo(self, vuelo,tiempo):
+        bloque = BloqueVuelo()        
+        bloque.addVuelo(vuelo,tiempo)
         insercion = self.vuelos.insertarBloque(bloque)
         if (insercion != -1 ):
             bloque.vuelo.asignarPuerta (0, self)
-            self.tiempoLibre = insercion
+            #self.tiempoLibre = insercion
             return 1
         else:
-            #print ("Area: " + str(self.idArea) + "t: " + str(insercion))
             return -1
 
 class Manga: 
