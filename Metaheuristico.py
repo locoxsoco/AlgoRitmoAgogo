@@ -1,12 +1,10 @@
-from copy import deepcopy
 import math
 import random
 import sys
 import time
-import requests
 import numpy
-import importlib
 import Clases
+from copy import deepcopy
 from datetime import datetime,date,time, timedelta
 
 class Annealer(object):

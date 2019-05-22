@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import multiprocessing as mp
 import math
 import random
 import sys
@@ -10,10 +5,9 @@ import requests
 import time
 import json
 import numpy
-import importlib
 import Clases
 import Metaheuristico
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, date, timedelta
 
 def main ():
     if((sys.argv[1]) == "x"): 
@@ -29,6 +23,10 @@ def main ():
         e=corrida (archivo)
         archivo = "ArrivalLima190509.txt"
         f=corrida (archivo)
+        archivo = "ArrivalLima190520.txt"
+        g=corrida (archivo)
+        archivo = "ArrivalLima190521.txt"
+        h=corrida (archivo)
         print("-------------------------")
         print("Experimentación Final: ")
         print("4 de mayo: "+ str(round(a,2)))
@@ -37,12 +35,15 @@ def main ():
         print("7 de mayo: "+ str(round(d,2)))
         print("8 de mayo: "+ str(round(e,2)))
         print("9 de mayo: "+ str(round(f,2)))
-        print ("Promedio: "+str(round((a+b+c+d+e+f)/6,2)))
+        print("20 de mayo: "+ str(round(g,2)))
+        print("21 de mayo: "+ str(round(h,2)))
+        print ("Promedio: "+str(round((a+b+c+d+e+f+g+h)/8,2)))
         print("-------------------------")
     else: 
         corrida (sys.argv[1])
 
 def corrida(archivo):
+    start = time.time()
     with open(archivo) as json_file:  
         data = json.loads(json_file.read().replace("\'", "\""))
         #print (data)
@@ -51,14 +52,10 @@ def corrida(archivo):
             #print(j['arrival'])
 
     data_filtered = list(filter(lambda x : x['status'] != 'landed' and x['status'] != 'cancelled', data))
-    #print(len(data_filtered))
-    #print(data_filtered[47])
     listaVuelos = []
     Clases.Vuelo.nVuelo =0
     i =0
     for flight in data_filtered:
-        #print (flight['status'], flight['departure'], flight['arrival'], flight['airline'], flight['flight'])
-        #try:
         i +=1
         vuelo = Clases.Vuelo()
         jsonDestino = flight ['arrival']
@@ -112,7 +109,6 @@ def corrida(archivo):
 
         vuelo.asignarIDVuelo()
         listaVuelos.append(vuelo)
-        #print (str(vuelo.tiempoEstimado)+ "  "+ str(vuelo.idVuelo))
 
     nPuertas = 20
     nZonas = 52
@@ -129,13 +125,24 @@ def corrida(archivo):
     ann = Metaheuristico.Annealer(listaVuelos,listaPuertas,listaZonas)
     x,y = ann.anneal()
 
-    print("Puertas")
+    print ("[", end="")
+    #print("Puertas")
     for i in x[0]:
         i.imprimirLista()
-    print("Zonas:")
+        print (", ",end="")
+    #print("Zonas:")
+    cont =0
     for i in x[1]:
-        i.imprimirLista()
-    print("Resultado: " + str(y))
+        if(cont ==0):
+            cont =1
+        else:
+            print(", ",end="")
+        i.imprimirLista() 
+    #print("Resultado: " + str(y))
+    print (" ]")
+
+    end = time. time()
+    print("Tiempo de ejecución: " + str((end-start)))
     return y
 
 if __name__ == '__main__':

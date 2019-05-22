@@ -240,17 +240,27 @@ class Area:
 
 
     def imprimirLista(self):
+        if(self.idArea % 2 ==0):
+            print ("{ \"tipo\": \""+ "puerta\", ",end="")
+        else:
+            print ("{ \"tipo\": \""+ "zona\", ", end ="")
+        print ("\"vuelos\": [ ",end="")
         p=self.vuelos.inicio
-        print("ID: "+str(self.idArea))
+        f = 0
         while(p is not None):
-            print("Libre: "+ str(not (p.ocupado))+" | tiempoInicio: "+str(p.tiempoInicio)+ " | tiempoFin: "+str(p.tiempoFin),end='')
             if (p.ocupado):
-                print(" | ID Vuelo: "+ str(p.vuelo.idVuelo) + " | TiempoLlegada: "+ str(p.vuelo.tiempoEstimado))
-            else:
-                print()
+                #print("\"tiempoInicio\": \""+str(p.tiempoInicio)+ "\", \"tiempoFin\": \""+str(p.tiempoFin)+"\", ",end='')
+                if (f==0):
+                    f=1
+                else:
+                    print(", ",end="")
+                print("{ \"numeroVuelo\": \""+ str(p.vuelo.numeroVuelo) + "\", \"TiempoLlegada\": \""+ str(p.vuelo.tiempoEstimado)+ "\" }",end="") 
+            #else:
+            #    print()
             p=p.sig            
-        print("----------------------")
-        
+        print(" ] }",end="")
+        #print("----------------------")
+
     def removeVuelo(self,bloque):
         p = self.vuelos.inicio
         ant = None
