@@ -1,4 +1,8 @@
 from datetime import datetime, date,time, timedelta
+from io import StringIO
+
+import sys
+
 class Avion :
     def __init__ (self,reg_number=None,icao=None,tipoAvion=None,tAerolinea=None):
         pass

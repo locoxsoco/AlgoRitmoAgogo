@@ -8,6 +8,10 @@ import numpy
 import Clases
 import Metaheuristico
 from datetime import datetime, date, timedelta
+from io import StringIO
+
+s = StringIO()
+sys.stdout = s
 
 def main ():
     if((sys.argv[1]) == "x"): 
@@ -27,6 +31,7 @@ def main ():
         g=corrida (archivo)
         archivo = "ArrivalLima190521.txt"
         h=corrida (archivo)
+        '''
         print("-------------------------")
         print("Experimentación Final: ")
         print("4 de mayo: "+ str(round(a,2)))
@@ -39,8 +44,11 @@ def main ():
         print("21 de mayo: "+ str(round(h,2)))
         print ("Promedio: "+str(round((a+b+c+d+e+f+g+h)/8,2)))
         print("-------------------------")
+        '''
     else: 
         corrida (sys.argv[1])
+        sys.stdout = sys.__stdout__
+        print(s.getvalue())
 
 def corrida(archivo):
     start = time.time()
@@ -142,7 +150,7 @@ def corrida(archivo):
     print (" ]")
 
     end = time. time()
-    print("Tiempo de ejecución: " + str((end-start)))
+    #print("Tiempo de ejecución: " + str((end-start)))
     return y
 
 if __name__ == '__main__':

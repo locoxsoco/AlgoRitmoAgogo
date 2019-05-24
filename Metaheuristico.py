@@ -6,7 +6,9 @@ import numpy
 import Clases
 from copy import deepcopy
 from datetime import datetime,date,time, timedelta
+from io import StringIO
 
+import sys
 class Annealer(object):
     # parámetros
     Tmax = 25000.0
@@ -24,7 +26,8 @@ class Annealer(object):
         """
         Método FIFO para alcanzar una solución mas o menos óptima
         """
-        print ("Original: ")
+
+        #print ("Original: ")
         self.listaVuelos = deepcopy(x)
         self.listaPuertas = deepcopy(y)
         self.listaZonas = deepcopy(z)
@@ -152,9 +155,9 @@ class Annealer(object):
         for i in self.state[2]:
             costoVuelos += (i.tiempoLlegada - i.tiempoEstimado).total_seconds() ** 2
             xd += (i.tiempoLlegada - i.tiempoEstimado).total_seconds()
-        if (fin):
+        #if (fin):
             #print (self.maxTiempo, self.minTiempo)
-            print ("Hora asignada y hora estimada (L) : "+ str(xd/3600))
+        #    print ("Hora asignada y hora estimada (L) : "+ str(xd/3600))
         xd=0        
         costoAreas = 0
         for puerta in self.state[0]:
@@ -170,8 +173,9 @@ class Annealer(object):
                 c+=1
             costoAreas += parCastigo * costoPuerta
             xd +=costoPuerta
-        if (fin):
-            print("Tiempo sin uso de Puertas (P*U) : "+ str(xd/3600))
+        
+        #if (fin):
+        #    print("Tiempo sin uso de Puertas (P*U) : "+ str(xd/3600))
         xd=0
         for zona in self.state[1]:
             costoZona = 0
@@ -184,8 +188,8 @@ class Annealer(object):
                 c+=1 
             costoAreas += costoZona
             xd +=costoZona
-        if (fin):
-            print("Tiempo sin uso de Zonas (U) "+ str(xd/3600))
+        #if (fin):
+        #    print("Tiempo sin uso de Zonas (U) "+ str(xd/3600))
         return costoAreas + costoVuelos
 
     def anneal(self):
@@ -237,6 +241,6 @@ class Annealer(object):
         # Return best state and energy
         self.state = deepcopy(best_state)
 
-        print("Final: ") 
+        #print("Final: ") 
         self.energy()
         return best_state, best_energy
