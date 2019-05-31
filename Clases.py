@@ -1,5 +1,6 @@
 from datetime import datetime, date,time, timedelta
 from io import StringIO
+from copy import deepcopy
 
 import sys
 
@@ -163,6 +164,7 @@ class BloqueVuelo:
         self.tiempoInicio = None
         self.tiempoFin = None
         self.sig = None
+        self.ant = None
 
     def addVuelo(self,vuelo,tiempo):
         self.vuelo = vuelo
@@ -198,7 +200,7 @@ class ListaVuelos:
         ant = None
         ubicado = False
         while(p is not None):
-            if (not p.ocupado and p.tiempoInicio<= bloque.tiempoInicio and \
+            if (not p.ocupado and p.tiempoInicio <= bloque.tiempoInicio and \
                 p.tiempoFin >= bloque.tiempoFin):
 
                 #self.tiempoLibre = self.tiempoLibre - (bloque.tiempoFin - bloque.tiempoInicio)
@@ -210,19 +212,26 @@ class ListaVuelos:
                     if(ant is None):
                         self.inicio = bloqueAnt
                     else:
-                        ant.sig = bloqueAnt 
+                        ant.sig = bloqueAnt
+                        bloqueAnt.ant = ant #doblemente enlazado 
                     self.cantBloques += 1
                 if (p.tiempoFin != bloque.tiempoFin):
                     bloqueSig = BloqueVuelo()
                     bloqueSig.definirEspacioVacio(bloque.tiempoFin,p.tiempoFin)
                     bloqueSig.sig = p.sig
-                    self.cantBloques +=1
+                    bloqueSig.ant = p #doblemente enlazado 
+                    self.cantBloques += 1
 
                 if(bloqueAnt is None):
                     self.inicio = bloque
                 else:
                     bloqueAnt.sig = bloque
+
+                if(bloqueSig is not None):
+                    bloqueSig.ant = bloque #doblemente enlazado
+
                 bloque.sig = bloqueSig
+                bloque.ant = bloqueAnt
                 self.cantidad +=1
                 ubicado = True
                 break
@@ -245,9 +254,9 @@ class Area:
 
     def imprimirLista(self):
         if(self.idArea % 2 ==0):
-            print ("{ \"tipo\": \""+ "puerta\", ",end="")
+            print ("{ \"tipo\": \""+ "puerta "+str(self.idArea//2) + "\", ",end="")
         else:
-            print ("{ \"tipo\": \""+ "zona\", ", end ="")
+            print ("{ \"tipo\": \""+ "zona "+str(self.idArea//2 + 1) + "\", ", end ="")
         print ("\"vuelos\": [ ",end="")
         p=self.vuelos.inicio
         f = 0
@@ -258,12 +267,16 @@ class Area:
                     f=1
                 else:
                     print(", ",end="")
-                print("{ \"numeroVuelo\": \""+ str(p.vuelo.numeroVuelo) + "\", \"TiempoLlegada\": \""+ str(p.vuelo.tiempoEstimado)+ "\" }",end="") 
-            #else:
-            #    print()
+            if (p.ocupado):
+                print("{ \"numeroVuelo\": \""+ str(p.vuelo.icao) \
+                    + "\", \"TiempoEstimado\": \""+ str(p.vuelo.tiempoEstimado) \
+                    + "\", \"TiempoLlegada\": \""+ str(p.vuelo.tiempoLlegada) + "\" }",end="") 
+            else:
+                print("{ \"TiempoINI\": \""+ str(p.tiempoInicio) \
+                    + "\", \"TiempoFIN\": \""+ str(p.tiempoFin) + "\" }",end="") 
             p=p.sig            
         print(" ] }",end="")
-        #print("----------------------")
+        #print("-------------------------------")
 
     def removeVuelo(self,bloque):
         p = self.vuelos.inicio
@@ -273,27 +286,68 @@ class Area:
                 if(ant is not None and p.sig is not None):
                     if (not ant.ocupado and not p.sig.ocupado):
                         ant.definirEspacioVacio(ant.tiempoInicio, p.sig.tiempoFin)
-                        ant.sig = p.sig.sig
+                        ant.sig = p.sig.sig 
+                        if(p.sig.sig is not None):
+                            p.sig.sig.ant = ant #doblemente enlazado
+                        
                         self.vuelos.cantBloques -= 1
                     elif (not ant.ocupado):
                         ant.definirEspacioVacio(ant.tiempoInicio,p.tiempoFin)
-                        ant.sig = p.sig
+                        ant.sig = p.sig 
+                        p.sig.ant = ant #doblemente enlazado
                     elif (not p.sig.ocupado):
                         p.sig.definirEspacioVacio(p.tiempoInicio,p.sig.tiempoFin)
                         ant.sig = p.sig
+                        p.sig.ant = ant #doblemente enlazado
                     else:
-                        ant.sig = p.sig
+                        bloqueVacio = BloqueVuelo()
+                        bloqueVacio.definirEspacioVacio(p.tiempoInicio, p.tiempoFin)
+                        self.vuelos.cantBloques += 1
+                        ant.sig = bloqueVacio
+                        bloqueVacio.sig = p.sig
+                        bloqueVacio.ant = ant #doblemente enlazado
+                        p.sig.ant = bloqueVacio #doblemente enlazado
 
                 elif (ant is None):
-                    self.vuelos.inicio = p.sig
+                    if not(p.sig.ocupado):
+                        p.sig.definirEspacioVacio(p.tiempoInicio, p.sig.tiempoFin)
+                        self.vuelos.inicio = p.sig
+                    else:
+                        bloqueVacio = BloqueVuelo()
+                        bloqueVacio.definirEspacioVacio(p.tiempoInicio, p.tiempoFin)
+                        bloqueVacio.sig = p.sig
+                        p.sig.ant = bloqueVacio #doblemente enlazado
+                        self.vuelos.inicio = bloqueVacio
+                        self.vuelos.cantBloques += 1
                 elif(p.sig is None):
-                    ant.sig = None
+                    if(not ant.ocupado):
+                        ant.sig = None
+                        ant.definirEspacioVacio(ant.tiempoInicio, p.tiempoFin)
+                    else:
+                        bloqueVacio = BloqueVuelo()
+                        bloqueVacio.definirEspacioVacio(p.tiempoInicio, p.tiempoFin)
+                        ant.sig = bloqueVacio
+                        bloqueVacio.ant = ant #doblemente enlazado
 
                 self.vuelos.cantBloques -=1
                 self.vuelos.cantidad -=1
                 break
             ant = p
             p=p.sig
+
+    def exchange(self, area, A, B):
+        C = deepcopy (A)
+        D = deepcopy (B)
+        self.vuelos.cantidad -= B.cantidad
+        self.vuelos.cantidad += A.cantidad
+        area.vuelos.cantidad -= A.cantidad
+        area.vuelos.cantidad += B.cantidad
+        insertarIntervalo(self, C, D)
+        C = deepcopy (A)
+        D = deepcopy (B)
+        insertarIntervalo(area, D, C)
+        
+############################################################################
 
 class Zona(Area):
     def __init__ (self, idArea=0, largo=0.0, ancho=0.0, coordenadaXCentro=0.0, \
@@ -322,7 +376,6 @@ class Puerta(Area):
         insercion = self.vuelos.insertarBloque(bloque)
         if (insercion != -1 ):
             bloque.vuelo.asignarPuerta (0, self)
-            #self.tiempoLibre = insercion
             return 1
         else:
             return -1
@@ -333,3 +386,136 @@ class Manga:
 
     def asignarPuerta(self, puerta):
         self.puerta=puerta
+
+class Intervalo(object):
+    def __init__(self, bloque):
+        if (bloque.ant is not None and not bloque.ant.ocupado):
+            self.inicio = bloque.ant
+            self.t1 = bloque.ant.tiempoInicio
+        else:
+            self.inicio = bloque
+            self.t1 = bloque.tiempoInicio
+
+        self.t2 = bloque.tiempoInicio
+        self.t3 = bloque.tiempoFin
+
+        if(bloque.sig is not None and not bloque.sig.ocupado):
+            self.fin = bloque.sig
+            self.t4 = bloque.sig.tiempoFin
+        else:
+            self.fin = bloque
+            self.t4 = bloque.tiempoFin
+
+        self.cantidad = 1
+        
+    def printIntervalo(self):
+        p=self.inicio
+        while (True):
+            print (" => "+ str(p.tiempoInicio) + " | "+ str(p.tiempoFin),end="") 
+            if(p == self.fin):
+                break
+            p=p.sig
+        print ()
+        print(str(self.t1),end=" ")
+        print(str(self.t2),end=" ")
+        print(str(self.t3),end=" ")
+        print(self.t4)
+
+    def extendLeft(self):
+        if (self.inicio.ant is None):
+            return False
+        else:
+            self.inicio = self.inicio.ant
+            self.t2 = self.inicio.tiempoInicio
+
+            if (self.inicio.ant is not None and not self.inicio.ant.ocupado):
+                self.inicio = self.inicio.ant
+            self.t1 = self.inicio.tiempoInicio
+
+            self.cantidad +=1
+            return True
+
+    def extendRight(self):
+        if (self.fin.sig is None):
+            return False
+        else:
+            self.fin=self.fin.sig
+            self.t3 = self.fin.tiempoFin
+
+            if(self.fin.sig is not None and not self.fin.sig.ocupado):
+                self.fin = self.fin.sig
+            self.t4 = self.fin.tiempoFin
+            
+            self.cantidad +=1
+            return True
+        
+
+def insertarIntervalo(area1, A, B):
+    if (A.inicio.ant is None):
+        if (B.t1==B.t2):
+            area1.vuelos.inicio.definirEspacioVacio( \
+                area1.vuelos.inicio.tiempoInicio, B.t1)
+            B.inicio.ant = area1.vuelos.inicio
+            area1.vuelos.inicio.sig = B.inicio
+        else: 
+            area1.vuelos.inicio.definirEspacioVacio( \
+                area1.vuelos.inicio.tiempoInicio, B.t2)
+            B.inicio.sig.ant = area1.vuelos.inicio
+            area1.vuelos.inicio.sig = B.inicio.sig
+    else:
+        if (B.t1==B.t2):
+            if (A.t1 < B.t1):
+                bloqueVacio = BloqueVuelo()
+                bloqueVacio.definirEspacioVacio(A.t1, B.t1)
+                area1.vuelos.cantBloques += 1
+                A.inicio.ant.sig = bloqueVacio
+                bloqueVacio.ant = A.inicio.ant
+                bloqueVacio.sig = B.inicio
+                B.inicio.ant = bloqueVacio
+            else:
+                A.inicio.ant.sig = B.inicio
+                #cantBloques
+                B.inicio.ant = A.inicio.ant
+        else:
+            if(A.t1 < B.t1):
+                B.inicio.definirEspacioVacio(A.t1, B.t2)
+                area1.vuelos.cantBloques += 1
+                A.inicio.ant.sig = B.inicio
+                B.inicio.ant = A.inicio.ant
+            else:
+                A.inicio.ant.sig = B.inicio.sig
+                #cantBloques
+                B.inicio.ant = A.inicio.ant
+        
+
+    if (A.fin.sig is None):
+        if(B.t3 == B.t4):
+            A.fin.definirEspacioVacio(B.t4, A.fin.tiempoFin)
+            B.fin.sig = A.fin
+            A.fin.ant = B.fin
+        else:
+            A.fin.definirEspacioVacio(B.t3, A.fin.tiempoFin)
+            B.fin.ant.sig = A.fin
+            A.fin.ant = B.fin.ant
+    else:
+        if(B.t3 == B.t4):
+            if(A.t4 < B.t4):
+                bloqueVacio = BloqueVuelo()
+                bloqueVacio.definirEspacioVacio(A.t4, B.t4)
+                area1.vuelos.cantBloques+=1
+                A.fin.sig.ant = bloqueVacio
+                bloqueVacio.sig = A.fin.sig
+                bloqueVacio.ant = B.fin
+                A.fin.sig = bloqueVacio
+            else:
+                A.fin.sig.ant = B.fin
+                B.fin.sig = A.fin.sig
+        else:
+            if(A.t4 < B.t4):
+                B.fin.definirEspacioVacio(B.t3, A.t4)
+                area1.vuelos.cantBloques += 1
+                A.fin.sig.ant = B.fin
+                B.fin.sig = A.fin.sig
+            else:
+                A.fin.sig.ant = B.fin.ant
+                B.fin.sig = A.fin.sig
