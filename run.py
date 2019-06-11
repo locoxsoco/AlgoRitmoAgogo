@@ -14,6 +14,7 @@ s = StringIO()
 #sys.stdout = s
 
 def main ():
+    start = time.time()
     if((sys.argv[1]) == "x"): 
         sys.stdout = sys.__stdout__
         archivo = "ArrivalLima190504.txt"
@@ -50,23 +51,26 @@ def main ():
         corrida (sys.argv[1])
         sys.stdout = sys.__stdout__
         print(s.getvalue())
+    end = time. time()
+    print("Tiempo de ejecución: " + str((end-start)))
 
 def corrida(archivo):
-    start = time.time()
     with open(archivo) as json_file:  
         data = json.loads(json_file.read().replace("\'", "\""))
-        #print (data)
-        #print(len(data))
-        #for j in data:
-            #print(j['arrival'])
+    #r2 = requests.get(url='https://aviation-edge.com/v2/public/timetable?key=76a9f2-5aad26&iataCode=LIM&type=arrival')
+    #data = r2.json()
 
     data_filtered = list(filter(lambda x : x['status'] != 'landed' and x['status'] != 'cancelled', data))
+    data_canceled = list (filter(lambda x: x['status'] == 'cancelled',data))
     listaVuelos = []
+    tamanos = ["Pequeño", "Mediano", "Grande"]
     Clases.Vuelo.nVuelo =0
-    i =0
+    i = 0
     for flight in data_filtered:
         i +=1
         vuelo = Clases.Vuelo()
+        #aleatorizar la muestra
+        vuelo.setTamano(tamanos[round(random.random()*2)])
         jsonDestino = flight ['arrival']
         anho = int(jsonDestino['scheduledTime'][0:4])
         mes = int(jsonDestino['scheduledTime'][5:7])
@@ -97,7 +101,6 @@ def corrida(archivo):
         jsonVuelo = flight['flight']
         vuelo.addNumeroVuelo(jsonVuelo['number'])
         vuelo.addIata(jsonVuelo['iataNumber'])
-
         try:
             vuelo.addIcao(jsonVuelo['icaoNumber'])
         except:
@@ -123,25 +126,24 @@ def corrida(archivo):
 
     nPuertas = 20
     nZonas = 52
+    
     listaZonas = []
     listaPuertas = []
     for i in range(1,nPuertas+1):
-        area2 = Clases.Puerta(2*i,random.random()*79+1, random.random()*59+1,random.random()*499+1,random.random()*499+1,10)
+        area2 = Clases.Puerta("Puerta",tamanos[round(random.random()*2)],i, random.random()*499+1,random.random()*499+1,10)
         listaPuertas.append(area2)
         
     for i in range(1,nZonas +1):
-        area = Clases.Zona(2*i-1,random.random()*79+1, random.random()*59+1,random.random()*499+1, random.random()*499+1)
+        area = Clases.Zona("Zona", tamanos[round(random.random()*2)], i, random.random()*499+1, random.random()*499+1)
         listaZonas.append(area)
 
     ann = Metaheuristico.Annealer(listaVuelos,listaPuertas,listaZonas)
     x,y = ann.anneal()
 
-    print ("[", end="")
-    #print("Puertas")
+    print ("{ [", end="")
     for i in x[0]:
         i.imprimirLista()
         print (", ",end="")
-    #print("Zonas:")
     cont =0
     for i in x[1]:
         if(cont ==0):
@@ -149,11 +151,18 @@ def corrida(archivo):
         else:
             print(", ",end="")
         i.imprimirLista() 
-    #print("Resultado: " + str(y))
-    print (" ]")
+    print (" ] }, {", end="")
+    print (json.dumps(data_canceled),end="")
+    # cont = 0
+    # for i in data_canceled:
+    #     if (cont ==0):
+    #         cont = 1
+    #     else:
+    #         print(", ",end ="") 
+    #         i.printJson()
 
-    end = time. time()
-    #print("Tiempo de ejecución: " + str((end-start)))
+    print ("} ",end="")
+    
     return y
 
 if __name__ == '__main__':
